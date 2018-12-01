@@ -12,49 +12,6 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 
-var requestHandler = function(request, response) {
-  request.on('error', (err) => {
-    console.error(err);
-    response.statusCode = 400;
-    response.end();
-  });
-  response.on('error', (err) => {
-    console.error(err);
-  });
-
-  console.log('Serving request type ' + request.method + ' for url ' + request.url);
-
-  // The outgoing status.
-  var statusCode = 200;
-
-  // See the note below about CORS headers.
-  var headers = defaultCorsHeaders;
-
-  if (request.method === 'POST' && request.url === '/classes/messages') {
-    
-    request.on('data', (chunk) => {
-      body.results.push(chunk);
-      }).on('end', () => {
-        // body.results = Buffer.concat(body.results).toString();
-        response.statusCode = 201;
-        // let data = body.results[body.results.length - 1];
-        console.log('body: ', body, ' | body.results[last index]: ', body.results[body.results.length - 1])
-        response.end(JSON.stringify(body));
-    });
-    
-  } else if (request.method === 'GET') {
-    
-    headers['Content-Type'] = 'application/json';
-    response.writeHead(statusCode, headers);
-    response.end(JSON.stringify(body));
-
-  } else {
-    response.statusCode = 404;
-    response.end();
-  }
-  
-};
-
 var body = {
   results: []
 };
@@ -66,26 +23,56 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
-exports.handleRequest = requestHandler;
+var requestHandler = function(request, response) {
+
+  console.log('Serving request type ' + request.method + ' for url ' + request.url);
+
+
+  // See the note below about CORS headers.
+  var headers = defaultCorsHeaders;
+
+  if (request.method === 'POST' && request.url === '/classes/messages') {
+    
+    request.on('data', (chunk) => {
+      body.results.push(JSON.parse(chunk));
+    }).on('end', () => {
+      response.writeHead(201, headers);
+      response.end(JSON.stringify(body.results));
+    });
+    
+  } else if (request.method === 'GET' && request.url === '/classes/messages') {
+    
+    headers['Content-Type'] = 'application/json';
+    response.writeHead(200, headers);
+    response.end(JSON.stringify(body));
+
+  } else {
+    response.writeHead(404, 'Error: Invalid URL');
+    response.end();
+  }
+  
+};
+
+exports.requestHandler = requestHandler;
 
 
 // Tell the client we are sending them plain text.
 //
 // You will need to change this if you are sending something
-  // other than plain text, like JSON or HTML.
-  
+// other than plain text, like JSON or HTML.
 
-  // .writeHead() writes to the request line and headers of the response,
-  // which includes the status and all headers.
-  
 
-  // Make sure to always call response.end() - Node may not send
-  // anything back to the client until you do. The string you pass to
-  // response.end() will be the body of the response - i.e. what shows
-  // up in the browser.
-  //
-  // Calling .end "flushes" the response's internal buffer, forcing
-  // node to actually send all the data over to the client.
+// .writeHead() writes to the request line and headers of the response,
+// which includes the status and all headers.
+
+
+// Make sure to always call response.end() - Node may not send
+// anything back to the client until you do. The string you pass to
+// response.end() will be the body of the response - i.e. what shows
+// up in the browser.
+//
+// Calling .end "flushes" the response's internal buffer, forcing
+// node to actually send all the data over to the client.
   
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
