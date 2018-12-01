@@ -33,11 +33,10 @@ var requestHandler = function(request, response) {
       body.results.push(JSON.parse(chunk));
     }).on('end', () => {
       response.writeHead(201, defaultCorsHeaders);
-      console.log(body.results);
       response.end(JSON.stringify(body.results));
     });
     
-  } else if (request.method === 'GET' && request.url === '/classes/messages') {
+  } else if (request.method === 'GET' && request.url.includes('/classes/messages')) {
     
     defaultCorsHeaders['content-type'] = 'application/json';
     response.writeHead(200, defaultCorsHeaders);
