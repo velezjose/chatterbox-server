@@ -27,27 +27,28 @@ var requestHandler = function(request, response) {
 
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
-
-  // See the note below about CORS headers.
-  var headers = defaultCorsHeaders;
-
   if (request.method === 'POST' && request.url === '/classes/messages') {
     
     request.on('data', (chunk) => {
       body.results.push(JSON.parse(chunk));
     }).on('end', () => {
-      response.writeHead(201, headers);
+      response.writeHead(201, defaultCorsHeaders);
+      console.log(body.results);
       response.end(JSON.stringify(body.results));
     });
     
   } else if (request.method === 'GET' && request.url === '/classes/messages') {
     
-    headers['Content-Type'] = 'application/json';
-    response.writeHead(200, headers);
+    defaultCorsHeaders['content-type'] = 'application/json';
+    response.writeHead(200, defaultCorsHeaders);
     response.end(JSON.stringify(body));
 
+  } else if (request.method === 'OPTIONS') {
+    response.writeHead(200, defaultCorsHeaders);
+    response.end();
+    
   } else {
-    response.writeHead(404, 'Error: Invalid URL');
+    response.writeHead(404, 'Error: Invalid URL', defaultCorsHeaders);
     response.end();
   }
   
