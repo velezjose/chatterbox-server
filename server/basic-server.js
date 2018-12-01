@@ -1,5 +1,6 @@
 /* Import node's http module: */
 var http = require('http');
+var handleRequest = require('./request-handler.js').handleRequest;
 
 
 // Every server needs to listen on a port with a unique number. The
@@ -14,7 +15,7 @@ var port = 3000;
 // special address that always refers to localhost.
 var ip = '127.0.0.1';
 
-
+debugger;
 
 // We use node's http module to create a server.
 //
