@@ -73,5 +73,10 @@ describe('server', function() {
     });
   });
 
-
+  it('Extra test: Should 401 when asked for a prohibited endpoint', function(done) {
+    request('http://127.0.0.1:3000/classes/messages/prohibited', function(error, response, body) {
+      expect(response.statusCode).to.equal(401);
+      done();
+    });
+  });
 });

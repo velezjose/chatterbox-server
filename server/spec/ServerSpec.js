@@ -59,10 +59,7 @@ describe('Node Server Request Listener Function', function() {
 
     // Expect 201 Created response status
     expect(res._responseCode).to.equal(201);
-
-    // Testing for a newline isn't a valid test
-    // TODO: Replace with with a valid test
-    // expect(res._data).to.equal(JSON.stringify('\n'));
+    expect(res._data).to.equal(JSON.stringify([{username:"Jono",text:"Do my bidding!"}]));
     expect(res._ended).to.equal(true);
   });
 
@@ -102,4 +99,40 @@ describe('Node Server Request Listener Function', function() {
     expect(res._ended).to.equal(true);
   });
 
+  it('Extra test: Should add to results array for every succesful POST request', function() {
+    var stubMsg = {
+      username: 'Jono',
+      text: 'Do my bidding!'
+    };
+
+    // First request
+    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    var res = new stubs.response();
+    handler.requestHandler(req, res);
+    console.log(JSON.parse(res._data))
+    // Expect to equal 3 because there are 2 previous POST requests.
+    // The same thing goes for the next 2 post requests on lines 118 and 122.
+    expect(JSON.parse(res._data).length).to.equal(3);
+  
+    // Second request
+    handler.requestHandler(req, res);
+    expect(JSON.parse(res._data).length).to.equal(4);
+    
+    // Third request
+    handler.requestHandler(req, res);
+    expect(JSON.parse(res._data).length).to.equal(5);
+  });
+
+  it('Extra test: Should return last posted message in the returned "results" array', function() {
+    var stubMsg = {
+      username: 'Trollers',
+      text: 'Let\'s troll'
+    };
+
+    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    var res = new stubs.response();
+    handler.requestHandler(req, res);
+    var array = JSON.parse(res._data)
+    expect(array[array.length - 1]).to.deep.equal(stubMsg);
+  });
 });

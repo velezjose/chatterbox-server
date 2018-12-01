@@ -36,11 +36,15 @@ var requestHandler = function(request, response) {
       response.end(JSON.stringify(body.results));
     });
     
-  } else if (request.method === 'GET' && request.url.includes('/classes/messages')) {
+  } else if (request.method === 'GET' && request.url === '/classes/messages') {
     
     defaultCorsHeaders['content-type'] = 'application/json';
     response.writeHead(200, defaultCorsHeaders);
     response.end(JSON.stringify(body));
+
+  } else if (request.url === '/classes/messages/prohibited') { 
+    response.writeHead(401, 'Unauthorized access!!!!', defaultCorsHeaders);
+    response.end();
 
   } else if (request.method === 'OPTIONS') {
     response.writeHead(200, defaultCorsHeaders);
